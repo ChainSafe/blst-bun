@@ -1,13 +1,13 @@
 import { test, expect, afterAll } from "bun:test";
 import { BLST_PK_IS_INFINITY, BLST_POINT_NOT_ON_CURVE, PUBLIC_KEY_SIZE } from "../../src/const";
-import { closeLib, lib } from "../../src/binding";
+import { closeBinding, binding } from "../../src/binding";
 
 test("load binding", () => {
   const buffer = new Uint8Array(PUBLIC_KEY_SIZE).fill(1);
-  lib.symbols.defaultPublicKey(buffer);
-  let validationRes = lib.symbols.validatePublicKey(buffer);
+  binding.defaultPublicKey(buffer);
+  let validationRes = binding.validatePublicKey(buffer);
   expect(validationRes).toBe(BLST_PK_IS_INFINITY);
-  validationRes = lib.symbols.publicKeyBytesValidate(buffer, PUBLIC_KEY_SIZE);
+  validationRes = binding.publicKeyBytesValidate(buffer, PUBLIC_KEY_SIZE);
   expect(validationRes).toBe(BLST_POINT_NOT_ON_CURVE);
 
   // 0ae7e5822ba97ab07877ea318e747499da648b27302414f9d0b9bb7e3646d248be90c9fdaddfdb93485a6e9334f0109301f36856007e1bc875ab1b00dbf47f9ead16c5562d889d8b270002ade81e78d473204fcb51ede8659bce3d95c67903bc
@@ -28,13 +28,13 @@ test("load binding", () => {
 
   // this buffer is the result, it's just the place holder for pk_aff_type
   // we can use it as data for a PublicKey class, to be modelled later
-  const deserializeResult = lib.symbols.deserializePublicKey(buffer, sampleBlsPubKey, sampleBlsPubKey.length);
+  const deserializeResult = binding.deserializePublicKey(buffer, sampleBlsPubKey, sampleBlsPubKey.length);
   expect(deserializeResult).toBe(0);
 
-  validationRes = lib.symbols.validatePublicKey(buffer);
+  validationRes = binding.validatePublicKey(buffer);
   expect(validationRes).toBe(0);
 });
 
 afterAll(() => {
-  closeLib();
+  closeBinding();
 })

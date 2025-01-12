@@ -3,7 +3,7 @@ import {dlopen} from "bun:ffi";
 const path = "lib/libblst_min_pk.dylib";
 
 // Load the compiled Zig shared library
-export const lib = dlopen(path, {
+const lib = dlopen(path, {
   // PublicKey functions
   defaultPublicKey: {
       args: ["ptr"],
@@ -47,6 +47,8 @@ export const lib = dlopen(path, {
   }
 });
 
-export function closeLib(): void {
+export const binding = lib.symbols;
+
+export function closeBinding(): void {
   lib.close();
 }
