@@ -11,11 +11,11 @@ const lib = dlopen(path, {
   },
   validatePublicKey: {
     args: ["ptr"],
-    returns: "u32"
+    returns: "u8"
   },
   publicKeyBytesValidate: {
     args: ["ptr", "u64"],
-    returns: "u32"
+    returns: "u8"
   },
   publicKeyFromAggregate: {
     args: ["ptr", "ptr"],
@@ -35,7 +35,7 @@ const lib = dlopen(path, {
   },
   deserializePublicKey: {
     args: ["ptr", "ptr", "u64"],
-    returns: "u32"
+    returns: "u8"
   },
   toPublicKeyBytes: {
     args: ["ptr", "ptr"],
@@ -44,7 +44,36 @@ const lib = dlopen(path, {
   isPublicKeyEqual: {
     args: ["ptr", "ptr"],
     returns: "bool"
-  }
+  },
+  // SecretKey functions
+  defaultSecretKey: {
+    args: ["ptr"],
+    returns: "void"
+  },
+  secretKeyGen: {
+    args: ["ptr", "ptr", "u32", "ptr", "u32"],
+    returns: "u8",
+  },
+  secretKeyDeriveMasterEip2333: {
+    args: ["ptr", "ptr", "u32"],
+    returns: "u8",
+  },
+  secretKeyDeriveChildEip2333: {
+    args: ["ptr", "ptr", "u32"],
+    returns: "void",
+  },
+  secretKeyFromBytes: {
+    args: ["ptr", "ptr", "u32"],
+    returns: "u8",
+  },
+  secretKeyToBytes: {
+    args: ["ptr", "ptr"],
+    returns: "void",
+  },
+  secretKeyToPublicKey: {
+    args: ["ptr", "ptr"],
+    returns: "void",
+  },
 });
 
 export const binding = lib.symbols;

@@ -1,5 +1,6 @@
 export const PUBLIC_KEY_SIZE = 96;
 export const PUBLIC_KEY_COMPRESSED_SIZE = 48;
+export const SECRET_KEY_SIZE = 32;
 
 export const BLST_SUCCESS = 0;
 export const BLST_BAD_ENCODING = 1;

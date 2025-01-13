@@ -4,7 +4,7 @@ import { blstErrorToReason, fromHex, toHex } from "./util.ts";
 
 export class PublicKey {
   private blst_point: Uint8Array;
-  private constructor(buffer: Uint8Array) {
+  public constructor(buffer: Uint8Array) {
     this.blst_point = buffer;
   }
 
