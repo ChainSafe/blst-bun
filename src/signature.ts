@@ -53,7 +53,9 @@ export class Signature {
   }
 
   /** Serialize a signature to a byte array. */
-  public toBytes(compress?: boolean | undefined | null): Uint8Array {
+  public toBytes(inCompress?: boolean | undefined | null): Uint8Array {
+    // this is the same to Rust binding
+    const compress = inCompress ?? true;
     if (compress) {
       const out = new Uint8Array(SIGNATURE_LENGTH_COMPRESSED);
       binding.signatureToBytes(out, this.blst_point);

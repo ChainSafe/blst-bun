@@ -90,4 +90,4 @@ describe("PublicKey", () => {
 
 afterAll(() => {
   closeBinding();
-})
+});
