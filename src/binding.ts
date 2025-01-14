@@ -74,6 +74,27 @@ const lib = dlopen(path, {
     args: ["ptr", "ptr"],
     returns: "void",
   },
+  // Signature functions
+  signatureFromBytes: {
+    args: ["ptr", "ptr", "u32"],
+    returns: "u8",
+  },
+  sigValidate: {
+    args: ["ptr", "ptr", "u32", "bool"],
+    returns: "u8",
+  },
+  signatureToBytes: {
+    args: ["ptr", "ptr"],
+    returns: "void",
+  },
+  serializeSignature: {
+    args: ["ptr", "ptr"],
+    returns: "void",
+  },
+  validateSignature: {
+    args: ["ptr", "bool"],
+    returns: "u8",
+  }
 });
 
 export const binding = lib.symbols;

@@ -1,13 +1,13 @@
 import { test, expect, afterAll } from "bun:test";
-import { BLST_PK_IS_INFINITY, BLST_POINT_NOT_ON_CURVE, PUBLIC_KEY_SIZE } from "../../src/const";
+import { BLST_PK_IS_INFINITY, BLST_POINT_NOT_ON_CURVE, PUBLIC_KEY_LENGTH_UNCOMPRESSED } from "../../src/const";
 import { closeBinding, binding } from "../../src/binding";
 
 test("load binding", () => {
-  const buffer = new Uint8Array(PUBLIC_KEY_SIZE).fill(1);
+  const buffer = new Uint8Array(PUBLIC_KEY_LENGTH_UNCOMPRESSED).fill(1);
   binding.defaultPublicKey(buffer);
   let validationRes = binding.validatePublicKey(buffer);
   expect(validationRes).toBe(BLST_PK_IS_INFINITY);
-  validationRes = binding.publicKeyBytesValidate(buffer, PUBLIC_KEY_SIZE);
+  validationRes = binding.publicKeyBytesValidate(buffer, PUBLIC_KEY_LENGTH_UNCOMPRESSED);
   expect(validationRes).toBe(BLST_POINT_NOT_ON_CURVE);
 
   // 0ae7e5822ba97ab07877ea318e747499da648b27302414f9d0b9bb7e3646d248be90c9fdaddfdb93485a6e9334f0109301f36856007e1bc875ab1b00dbf47f9ead16c5562d889d8b270002ade81e78d473204fcb51ede8659bce3d95c67903bc

@@ -1,6 +1,8 @@
-export const PUBLIC_KEY_SIZE = 96;
-export const PUBLIC_KEY_COMPRESSED_SIZE = 48;
-export const SECRET_KEY_SIZE = 32;
+export const PUBLIC_KEY_LENGTH_UNCOMPRESSED = 96;
+export const PUBLIC_KEY_LENGTH_COMPRESSED = 48;
+export const SECRET_KEY_LENGTH = 32;
+export const SIGNATURE_LENGTH_COMPRESSED = 96;
+export const SIGNATURE_LENGTH_UNCOMPRESSED = 192;
 
 export const BLST_SUCCESS = 0;
 export const BLST_BAD_ENCODING = 1;

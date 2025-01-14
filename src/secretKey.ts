@@ -1,5 +1,5 @@
 import { binding } from "./binding";
-import { BLST_SUCCESS, PUBLIC_KEY_SIZE, SECRET_KEY_SIZE } from "./const";
+import { BLST_SUCCESS, PUBLIC_KEY_LENGTH_UNCOMPRESSED, SECRET_KEY_LENGTH } from "./const";
 import { PublicKey } from "./publicKey";
 import { blstErrorToReason, fromHex, toHex } from "./util";
 
@@ -18,7 +18,7 @@ export class SecretKey {
    * By default, the `key_info` is empty.
    */
   static fromKeygen(ikm: Uint8Array, keyInfo?: Uint8Array | undefined | null): SecretKey {
-      const buffer = new Uint8Array(SECRET_KEY_SIZE);
+      const buffer = new Uint8Array(SECRET_KEY_LENGTH);
       const res = binding.secretKeyGen(buffer, ikm, ikm.length, keyInfo ?? null, keyInfo?.length ?? 0);
       if (res !== BLST_SUCCESS) {
         throw new Error(blstErrorToReason(res));
@@ -35,7 +35,7 @@ export class SecretKey {
    * See https://eips.ethereum.org/EIPS/eip-2333
    */
   static deriveMasterEip2333(ikm: Uint8Array): SecretKey {
-    const buffer = new Uint8Array(SECRET_KEY_SIZE);
+    const buffer = new Uint8Array(SECRET_KEY_LENGTH);
     const res = binding.secretKeyDeriveMasterEip2333(buffer, ikm, ikm.length);
     if (res !== BLST_SUCCESS) {
       throw new Error(blstErrorToReason(res));
@@ -50,14 +50,14 @@ export class SecretKey {
    * See https://eips.ethereum.org/EIPS/eip-2333
    */
   deriveChildEip2333(index: number): SecretKey {
-    const buffer = new Uint8Array(SECRET_KEY_SIZE);
+    const buffer = new Uint8Array(SECRET_KEY_LENGTH);
     binding.secretKeyDeriveChildEip2333(buffer, this.blst_point, index);
     return new SecretKey(buffer);
   }
 
   /** Deserialize a secret key from a byte array. */
   static fromBytes(bytes: Uint8Array): SecretKey {
-    const buffer = new Uint8Array(SECRET_KEY_SIZE);
+    const buffer = new Uint8Array(SECRET_KEY_LENGTH);
     const res = binding.secretKeyFromBytes(buffer, bytes, bytes.length);
     if (res !== BLST_SUCCESS) {
       throw new Error(blstErrorToReason(res));
@@ -74,7 +74,7 @@ export class SecretKey {
 
   /** Serialize a secret key to a byte array. */
   toBytes(): Uint8Array {
-    const bytes = new Uint8Array(SECRET_KEY_SIZE);
+    const bytes = new Uint8Array(SECRET_KEY_LENGTH);
     binding.secretKeyToBytes(bytes, this.blst_point);
     return bytes;
   }
@@ -87,7 +87,7 @@ export class SecretKey {
 
   /** Return the corresponding public key */
   toPublicKey(): PublicKey {
-    const buffer = new Uint8Array(PUBLIC_KEY_SIZE);
+    const buffer = new Uint8Array(PUBLIC_KEY_LENGTH_UNCOMPRESSED);
     binding.secretKeyToPublicKey(buffer, this.blst_point);
     return new PublicKey(buffer);
   }

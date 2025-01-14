@@ -1,5 +1,5 @@
 import {binding} from "./binding.ts";
-import { BLST_SUCCESS, PUBLIC_KEY_COMPRESSED_SIZE, PUBLIC_KEY_SIZE } from "./const.ts";
+import { BLST_SUCCESS, PUBLIC_KEY_LENGTH_COMPRESSED, PUBLIC_KEY_LENGTH_UNCOMPRESSED } from "./const.ts";
 import { blstErrorToReason, fromHex, toHex } from "./util.ts";
 
 export class PublicKey {
@@ -14,7 +14,7 @@ export class PublicKey {
    * If `pk_validate` is `true`, the public key will be infinity and group checked.
    */
   public static fromBytes(bytes: Uint8Array, pkValidate?: boolean | undefined | null): PublicKey {
-    const buffer = new Uint8Array(PUBLIC_KEY_SIZE);
+    const buffer = new Uint8Array(PUBLIC_KEY_LENGTH_UNCOMPRESSED);
     let res = binding.deserializePublicKey(buffer, bytes, bytes.length);
     if (res !== BLST_SUCCESS) {
       throw new Error(blstErrorToReason(res));
@@ -44,12 +44,12 @@ export class PublicKey {
     // this is the same to Rust binding
     const compress = inCompress ?? true;
     if (compress) {
-      const out = new Uint8Array(PUBLIC_KEY_COMPRESSED_SIZE);
+      const out = new Uint8Array(PUBLIC_KEY_LENGTH_COMPRESSED);
       binding.compressPublicKey(out, this.blst_point);
       return out;
     }
 
-    const out = new Uint8Array(PUBLIC_KEY_SIZE);
+    const out = new Uint8Array(PUBLIC_KEY_LENGTH_UNCOMPRESSED);
     binding.serializePublicKey(out, this.blst_point);
     return out;
   }
