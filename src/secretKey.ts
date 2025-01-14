@@ -2,7 +2,7 @@ import { binding } from "./binding";
 import { BLST_SUCCESS, PUBLIC_KEY_LENGTH_UNCOMPRESSED, SECRET_KEY_LENGTH } from "./const";
 import { PublicKey } from "./publicKey";
 import { Signature } from "./signature";
-import { blstErrorToReason, fromHex, toHex } from "./util";
+import { blstErrorToReason, fromHex, toError, toHex } from "./util";
 
 export class SecretKey {
   private blst_point: Uint8Array;
@@ -19,10 +19,15 @@ export class SecretKey {
    * By default, the `key_info` is empty.
    */
   public static fromKeygen(ikm: Uint8Array, keyInfo?: Uint8Array | undefined | null): SecretKey {
+      // napi automatically throws on invalid types but for Bun, need to check manually
+      if (keyInfo !== undefined && !(keyInfo instanceof Uint8Array)) {
+        throw new Error("Invalid key info type");
+      }
+
       const buffer = new Uint8Array(SECRET_KEY_LENGTH);
       const res = binding.secretKeyGen(buffer, ikm, ikm.length, keyInfo ?? null, keyInfo?.length ?? 0);
       if (res !== BLST_SUCCESS) {
-        throw new Error(blstErrorToReason(res));
+        throw toError(res);
       }
 
       return new SecretKey(buffer);
@@ -39,7 +44,7 @@ export class SecretKey {
     const buffer = new Uint8Array(SECRET_KEY_LENGTH);
     const res = binding.secretKeyDeriveMasterEip2333(buffer, ikm, ikm.length);
     if (res !== BLST_SUCCESS) {
-      throw new Error(blstErrorToReason(res));
+      throw toError(res);
     }
 
     return new SecretKey(buffer);
@@ -61,7 +66,7 @@ export class SecretKey {
     const buffer = new Uint8Array(SECRET_KEY_LENGTH);
     const res = binding.secretKeyFromBytes(buffer, bytes, bytes.length);
     if (res !== BLST_SUCCESS) {
-      throw new Error(blstErrorToReason(res));
+      throw toError(res);
     }
 
     return new SecretKey(buffer);
