@@ -9,6 +9,15 @@ export class Signature {
   }
 
   /**
+   * Called from SecretKey so that we keep the constructor private.
+   */
+  public static sign(msg: Uint8Array, sk: Uint8Array): Signature {
+    const buffer = new Uint8Array(SIGNATURE_LENGTH_UNCOMPRESSED);
+    binding.sign(buffer, sk, msg, msg.length);
+    return new Signature(buffer);
+  }
+
+  /**
    * Deserialize a signature from a byte array.
    *
    * If `sig_validate` is `true`, the public key will be infinity and group checked.

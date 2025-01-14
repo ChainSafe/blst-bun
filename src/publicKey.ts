@@ -1,11 +1,20 @@
 import {binding} from "./binding.ts";
 import { BLST_SUCCESS, PUBLIC_KEY_LENGTH_COMPRESSED, PUBLIC_KEY_LENGTH_UNCOMPRESSED } from "./const.ts";
-import { blstErrorToReason, fromHex, toError, toHex } from "./util.ts";
+import { fromHex, toError, toHex } from "./util.ts";
 
 export class PublicKey {
   private blst_point: Uint8Array;
-  public constructor(buffer: Uint8Array) {
+  private constructor(buffer: Uint8Array) {
     this.blst_point = buffer;
+  }
+
+  /**
+   * Called from SecretKey so that we keep the constructor private.
+   */
+  public static fromSecretKey(sk: Uint8Array): PublicKey {
+    const buffer = new Uint8Array(PUBLIC_KEY_LENGTH_UNCOMPRESSED);
+    binding.secretKeyToPublicKey(buffer, sk);
+    return new PublicKey(buffer);
   }
 
   /**

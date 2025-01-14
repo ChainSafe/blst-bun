@@ -1,4 +1,4 @@
-import { describe, it, test, expect, afterAll } from "bun:test";
+import { describe, it, expect, afterAll } from "bun:test";
 import { closeBinding } from "../../src/binding";
 import { PublicKey } from "../../src/publicKey";
 import { expectEqualHex, expectNotEqualHex, sullyUint8Array } from "../utils/helpers";

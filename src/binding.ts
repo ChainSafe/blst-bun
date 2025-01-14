@@ -74,6 +74,10 @@ const lib = dlopen(path, {
     args: ["ptr", "ptr"],
     returns: "void",
   },
+  sign: {
+    args: ["ptr", "ptr", "ptr", "u32"],
+    returns: "void",
+  },
   // Signature functions
   signatureFromBytes: {
     args: ["ptr", "ptr", "u32"],
