@@ -1,25 +1,24 @@
-// import * as bindings from "../../index.js";
+import * as bindings from "../../src/index.js";
 
-// export type BufferLike = string | Uint8Array | Buffer | bindings.PublicKey | bindings.Signature;
-export type BufferLike = string | Uint8Array | Buffer;
+export type BufferLike = string | Uint8Array | Buffer | bindings.PublicKey | bindings.Signature;
 
-// export interface TestSet {
-//   msg: Uint8Array;
-//   sk: bindings.SecretKey;
-//   pk: bindings.PublicKey;
-//   sig: bindings.Signature;
-// }
+export interface TestSet {
+  msg: Uint8Array;
+  sk: bindings.SecretKey;
+  pk: bindings.PublicKey;
+  sig: bindings.Signature;
+}
 
-// export interface SameMessageTestSets {
-//   msg: Uint8Array;
-//   sets: {
-//     sk: bindings.SecretKey;
-//     pk: bindings.PublicKey;
-//     sig: bindings.Signature;
-//   }[];
-// }
+export interface SameMessageTestSets {
+  msg: Uint8Array;
+  sets: {
+    sk: bindings.SecretKey;
+    pk: bindings.PublicKey;
+    sig: bindings.Signature;
+  }[];
+}
 
-// export type SerializedSet = Record<keyof TestSet, Uint8Array>;
+export type SerializedSet = Record<keyof TestSet, Uint8Array>;
 
 // export type SignatureSetArray = bindings.SignatureSet[];
 

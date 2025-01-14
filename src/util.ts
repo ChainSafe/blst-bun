@@ -14,8 +14,15 @@ export function fromHex(hex: string): Uint8Array {
   return new Uint8Array(b.buffer, b.byteOffset, b.length);
 }
 
-export function blstErrorToReason(error: number): string {
-  switch (error) {
+export function toError(blstErrorCode: number): Error {
+  const message = blstErrorToReason(blstErrorCode);
+  const error = new Error(message);
+  (error as unknown as {code: string}).code = blstErrorToCode(blstErrorCode);
+  return error;
+}
+
+export function blstErrorToReason(blstErrorCode: number): string {
+  switch (blstErrorCode) {
     case 0:
       return "BLST_SUCCESS";
     case 1:
@@ -33,6 +40,29 @@ export function blstErrorToReason(error: number): string {
     case 7:
       return "Invalid scalar";
     default:
-      return `Unknown error code ${error}`;
+      return `Unknown error code ${blstErrorCode}`;
+  }
+}
+
+export function blstErrorToCode(blstError: number): string {
+  switch (blstError) {
+    case 0:
+      return "BLST_SUCCESS";
+    case 1:
+      return "BLST_BAD_ENCODING";
+    case 2:
+      return "BLST_POINT_NOT_ON_CURVE";
+    case 3:
+      return "BLST_POINT_NOT_IN_GROUP";
+    case 4:
+      return "BLST_AGGR_TYPE_MISMATCH";
+    case 5:
+      return "BLST_VERIFY_FAIL";
+    case 6:
+      return "BLST_PK_IS_INFINITY";
+    case 7:
+      return "BLST_BAD_SCALAR";
+    default:
+      return `Unknown error code ${blstError}`;
   }
 }

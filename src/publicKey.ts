@@ -1,6 +1,6 @@
 import {binding} from "./binding.ts";
 import { BLST_SUCCESS, PUBLIC_KEY_LENGTH_COMPRESSED, PUBLIC_KEY_LENGTH_UNCOMPRESSED } from "./const.ts";
-import { blstErrorToReason, fromHex, toHex } from "./util.ts";
+import { blstErrorToReason, fromHex, toError, toHex } from "./util.ts";
 
 export class PublicKey {
   private blst_point: Uint8Array;
@@ -17,13 +17,13 @@ export class PublicKey {
     const buffer = new Uint8Array(PUBLIC_KEY_LENGTH_UNCOMPRESSED);
     let res = binding.deserializePublicKey(buffer, bytes, bytes.length);
     if (res !== BLST_SUCCESS) {
-      throw new Error(blstErrorToReason(res));
+      throw toError(res);
     }
 
     if (pkValidate) {
       res = binding.validatePublicKey(buffer);
       if (res !== BLST_SUCCESS) {
-        throw new Error(blstErrorToReason(res));
+        throw toError(res);
       }
     }
     return new PublicKey(buffer);
@@ -61,7 +61,10 @@ export class PublicKey {
   }
 
   /** Validate a public key with infinity and group check. */
-  public keyValidate(): boolean {
-    return binding.validatePublicKey(this.blst_point) === BLST_SUCCESS;
+  public keyValidate(): void {
+    const res = binding.validatePublicKey(this.blst_point);
+    if (res !== BLST_SUCCESS) {
+      throw toError(res);
+    }
   }
 }
