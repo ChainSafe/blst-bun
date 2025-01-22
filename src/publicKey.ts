@@ -1,4 +1,4 @@
-import {binding} from "./binding.ts";
+import {binding, writeReference} from "./binding.ts";
 import { BLST_SUCCESS, PUBLIC_KEY_LENGTH_COMPRESSED, PUBLIC_KEY_LENGTH_UNCOMPRESSED } from "./const.ts";
 import { fromHex, toError, toHex } from "./util.ts";
 
@@ -75,5 +75,10 @@ export class PublicKey {
     if (res !== BLST_SUCCESS) {
       throw toError(res);
     }
+  }
+
+  /** Write reference of `blst_point` to the provided Uint32Array */
+  public writeReference(out: Uint32Array, offset: number): void {
+    writeReference(this.blst_point, out, offset);
   }
 }

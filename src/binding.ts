@@ -1,4 +1,4 @@
-import {dlopen} from "bun:ffi";
+import {dlopen, ptr} from "bun:ffi";
 
 const path = "lib/libblst_min_pk.dylib";
 
@@ -98,11 +98,33 @@ const lib = dlopen(path, {
   validateSignature: {
     args: ["ptr", "bool"],
     returns: "u8",
-  }
+  },
+  verifyMultipleAggregateSignatures: {
+    args: ["ptr", "u32", "u32", "bool", "bool", "ptr", "u32", "u32", "ptr", "u32"],
+    returns: "u32",
+  },
+  sizeOfPairing: {
+    args: [],
+    returns: "u32",
+  },
 });
 
 export const binding = lib.symbols;
 
 export function closeBinding(): void {
   lib.close();
+}
+
+export function writeReference(data: Uint8Array | Uint32Array, out: Uint32Array, offset: number): void {
+  // TODO: remove hard code?
+  // 2 items of uint32 means 8 of uint8
+  if (offset + 2 > out.length) {
+    throw new Error("Output buffer must be at least 8 bytes long");
+  }
+
+  const pointer = ptr(data);
+
+  // TODO: check endianess, this is for little endian
+  out[offset] = pointer & 0xFFFFFFFF;
+  out[offset + 1] = Math.floor(pointer / Math.pow(2, 32));
 }

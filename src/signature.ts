@@ -1,5 +1,6 @@
-import { binding } from "./binding";
+import { binding, writeReference } from "./binding";
 import { BLST_SUCCESS, SIGNATURE_LENGTH_COMPRESSED, SIGNATURE_LENGTH_UNCOMPRESSED } from "./const";
+import type { PublicKey } from "./publicKey";
 import { blstErrorToReason, fromHex, toHex } from "./util";
 
 export class Signature {
@@ -85,4 +86,53 @@ export class Signature {
     }
   }
 
+  /** Write reference of `blst_point` to the provided Uint32Array */
+  public writeReference(out: Uint32Array, offset: number): void {
+    writeReference(this.blst_point, out, offset);
+  }
+
+}
+
+export interface SignatureSet {
+  msg: Uint8Array;
+  pk: PublicKey;
+  sig: Signature;
+};
+
+const pairing = new Uint8Array(binding.sizeOfPairing());
+const rands: Uint8Array[] = [];
+// TODO: use the old random number generator every time
+for (let i = 0; i < 6; i++) {
+  rands.push(new Uint8Array(32).fill(i + 1));
+}
+const rands_bind = new Uint32Array(rands.length * 2);
+for (let i = 0; i < rands.length; i++) {
+  writeReference(rands[i], rands_bind, i * 2);
+}
+
+export function verifyMultipleAggregateSignatures(sets: SignatureSet[], pksValidate?: boolean | undefined | null, sigsGroupcheck?: boolean | undefined | null): boolean {
+  // TODO: make this a parameter so that consumer can reuse this memory
+  const sets_bind = new Uint32Array(sets.length * 2);
+  writeSignatureSetsReference(sets, sets_bind);
+  const msgLength = 32;
+  const rand_bits = 64;
+  const res = binding.verifyMultipleAggregateSignatures(sets_bind, sets.length, msgLength, pksValidate ?? false, sigsGroupcheck ?? false, rands_bind, rands.length, rand_bits, pairing, pairing.length);
+  return res === 0;
+}
+
+export function writeSignatureSetsReference(sets: SignatureSet[], out: Uint32Array): void {
+  // TODO: make this a parameter so that consumer can reuse this memory
+  const alloc = new Uint32Array(sets.length * 6);
+  let offset = 0;
+  for (const [i, set] of sets.entries()) {
+    writeSignatureSetReference(set, alloc, offset + i * 6);
+    // write pointer
+    writeReference(alloc.subarray(i * 6, i * 6 + 6), out, i * 2);
+  }
+}
+
+export function writeSignatureSetReference(set: SignatureSet, out: Uint32Array, offset: number): void {
+  writeReference(set.msg, out, offset);
+  set.pk.writeReference(out, offset + 2);
+  set.sig.writeReference(out, offset + 4);
 }
