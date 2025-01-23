@@ -102,12 +102,21 @@ export interface SignatureSet {
 // global pairing buffer to be reused across multiple calls
 const pairing = new Uint8Array(binding.sizeOfPairing());
 // global signature set data to be reused across multiple calls
-// each 6 items are 24 bytes, store 3 references of each signature set
+// each 6 items are 24 bytes, store 3 references of each signature set (msg + pk + sig)
 const signature_sets_data = new Uint32Array(MAX_SIGNATURE_SETS_PER_JOB * 6);
 // global signature sets reference to be reused across multiple calls
 // each 2 tems are 8 bytes, store the reference of each signature set
 const signature_sets_ref = new Uint32Array(MAX_SIGNATURE_SETS_PER_JOB * 2);
 
+/**
+ * Verify multiple aggregated signatures against multiple messages and multiple public keys.
+ *
+ * If `pks_validate` is `true`, the public keys will be infinity and group checked.
+ *
+ * If `sigs_groupcheck` is `true`, the signatures will be group checked.
+ *
+ * See https://ethresear.ch/t/fast-verification-of-multiple-bls-signatures/5407
+ */
 export function verifyMultipleAggregateSignatures(sets: SignatureSet[], pksValidate?: boolean | undefined | null, sigsGroupcheck?: boolean | undefined | null): boolean {
   if (sets.length > MAX_SIGNATURE_SETS_PER_JOB) {
     throw new Error(`Number of signature sets exceeds the maximum of ${MAX_SIGNATURE_SETS_PER_JOB}`);
@@ -119,7 +128,7 @@ export function verifyMultipleAggregateSignatures(sets: SignatureSet[], pksValid
   return res === 0;
 }
 
-export function writeSignatureSetsReference(sets: SignatureSet[], out: Uint32Array): void {
+function writeSignatureSetsReference(sets: SignatureSet[], out: Uint32Array): void {
   let offset = 0;
   for (const [i, set] of sets.entries()) {
     writeSignatureSetReference(set, signature_sets_data, offset + i * 6);
@@ -128,7 +137,7 @@ export function writeSignatureSetsReference(sets: SignatureSet[], out: Uint32Arr
   }
 }
 
-export function writeSignatureSetReference(set: SignatureSet, out: Uint32Array, offset: number): void {
+function writeSignatureSetReference(set: SignatureSet, out: Uint32Array, offset: number): void {
   writeReference(set.msg, out, offset);
   set.pk.writeReference(out, offset + 2);
   set.sig.writeReference(out, offset + 4);
