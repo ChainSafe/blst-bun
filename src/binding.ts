@@ -107,8 +107,11 @@ export function closeBinding(): void {
   lib.close();
 }
 
+/**
+ * Write reference of a data to the provided Uint32Array at offset
+ * TODO: may accept data + offset and compute pointer from the parent typed array. This will help to avoid `subarray()` calls.
+ */
 export function writeReference(data: Uint8Array | Uint32Array, out: Uint32Array, offset: number): void {
-  // TODO: remove hard code?
   // 2 items of uint32 means 8 of uint8
   if (offset + 2 > out.length) {
     throw new Error("Output buffer must be at least 8 bytes long");

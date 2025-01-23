@@ -99,30 +99,32 @@ export interface SignatureSet {
   sig: Signature;
 };
 
+// global pairing buffer to be reused across multiple calls
 const pairing = new Uint8Array(binding.sizeOfPairing());
+// global signature set data to be reused across multiple calls
+// each 6 items are 24 bytes, store 3 references of each signature set
+const signature_sets_data = new Uint32Array(MAX_SIGNATURE_SETS_PER_JOB * 6);
+// global signature sets reference to be reused across multiple calls
+// each 2 tems are 8 bytes, store the reference of each signature set
+const signature_sets_ref = new Uint32Array(MAX_SIGNATURE_SETS_PER_JOB * 2);
 
 export function verifyMultipleAggregateSignatures(sets: SignatureSet[], pksValidate?: boolean | undefined | null, sigsGroupcheck?: boolean | undefined | null): boolean {
   if (sets.length > MAX_SIGNATURE_SETS_PER_JOB) {
     throw new Error(`Number of signature sets exceeds the maximum of ${MAX_SIGNATURE_SETS_PER_JOB}`);
   }
 
-  // TODO: make this a parameter so that consumer can reuse this memory
-  const sets_bind = new Uint32Array(sets.length * 2);
-  writeSignatureSetsReference(sets, sets_bind);
+  writeSignatureSetsReference(sets, signature_sets_ref.subarray(0, sets.length * 2));
   const msgLength = 32;
-
-  const res = binding.verifyMultipleAggregateSignatures(sets_bind, sets.length, msgLength, pksValidate ?? false, sigsGroupcheck ?? false, pairing, pairing.length);
+  const res = binding.verifyMultipleAggregateSignatures(signature_sets_ref, sets.length, msgLength, pksValidate ?? false, sigsGroupcheck ?? false, pairing, pairing.length);
   return res === 0;
 }
 
 export function writeSignatureSetsReference(sets: SignatureSet[], out: Uint32Array): void {
-  // TODO: make this a parameter so that consumer can reuse this memory
-  const alloc = new Uint32Array(sets.length * 6);
   let offset = 0;
   for (const [i, set] of sets.entries()) {
-    writeSignatureSetReference(set, alloc, offset + i * 6);
+    writeSignatureSetReference(set, signature_sets_data, offset + i * 6);
     // write pointer
-    writeReference(alloc.subarray(i * 6, i * 6 + 6), out, i * 2);
+    writeReference(signature_sets_data.subarray(i * 6, i * 6 + 6), out, i * 2);
   }
 }
 
