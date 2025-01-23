@@ -5,10 +5,6 @@ const path = "lib/libblst_min_pk.dylib";
 // Load the compiled Zig shared library
 const lib = dlopen(path, {
   // PublicKey functions
-  defaultPublicKey: {
-      args: ["ptr"],
-      returns: "void"
-  },
   validatePublicKey: {
     args: ["ptr"],
     returns: "u8"
@@ -46,10 +42,6 @@ const lib = dlopen(path, {
     returns: "bool"
   },
   // SecretKey functions
-  defaultSecretKey: {
-    args: ["ptr"],
-    returns: "void"
-  },
   secretKeyGen: {
     args: ["ptr", "ptr", "u32", "ptr", "u32"],
     returns: "u8",
@@ -100,7 +92,7 @@ const lib = dlopen(path, {
     returns: "u8",
   },
   verifyMultipleAggregateSignatures: {
-    args: ["ptr", "u32", "u32", "bool", "bool", "ptr", "u32", "u32", "ptr", "u32"],
+    args: ["ptr", "u32", "u32", "bool", "bool", "ptr", "u32"],
     returns: "u32",
   },
   sizeOfPairing: {

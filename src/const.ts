@@ -4,6 +4,7 @@ export const SECRET_KEY_LENGTH = 32;
 export const SIGNATURE_LENGTH_COMPRESSED = 96;
 export const SIGNATURE_LENGTH_UNCOMPRESSED = 192;
 export const MESSAGE_LENGTH = 32;
+export const MAX_SIGNATURE_SETS_PER_JOB = 128;
 
 export const BLST_SUCCESS = 0;
 export const BLST_BAD_ENCODING = 1;

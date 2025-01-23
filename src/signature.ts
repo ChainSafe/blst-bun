@@ -1,5 +1,5 @@
 import { binding, writeReference } from "./binding";
-import { BLST_SUCCESS, SIGNATURE_LENGTH_COMPRESSED, SIGNATURE_LENGTH_UNCOMPRESSED } from "./const";
+import { BLST_SUCCESS, MAX_SIGNATURE_SETS_PER_JOB, SIGNATURE_LENGTH_COMPRESSED, SIGNATURE_LENGTH_UNCOMPRESSED } from "./const";
 import type { PublicKey } from "./publicKey";
 import { blstErrorToReason, fromHex, toHex } from "./util";
 
@@ -100,23 +100,18 @@ export interface SignatureSet {
 };
 
 const pairing = new Uint8Array(binding.sizeOfPairing());
-const rands: Uint8Array[] = [];
-// TODO: use the old random number generator every time
-for (let i = 0; i < 6; i++) {
-  rands.push(new Uint8Array(32).fill(i + 1));
-}
-const rands_bind = new Uint32Array(rands.length * 2);
-for (let i = 0; i < rands.length; i++) {
-  writeReference(rands[i], rands_bind, i * 2);
-}
 
 export function verifyMultipleAggregateSignatures(sets: SignatureSet[], pksValidate?: boolean | undefined | null, sigsGroupcheck?: boolean | undefined | null): boolean {
+  if (sets.length > MAX_SIGNATURE_SETS_PER_JOB) {
+    throw new Error(`Number of signature sets exceeds the maximum of ${MAX_SIGNATURE_SETS_PER_JOB}`);
+  }
+
   // TODO: make this a parameter so that consumer can reuse this memory
   const sets_bind = new Uint32Array(sets.length * 2);
   writeSignatureSetsReference(sets, sets_bind);
   const msgLength = 32;
-  const rand_bits = 64;
-  const res = binding.verifyMultipleAggregateSignatures(sets_bind, sets.length, msgLength, pksValidate ?? false, sigsGroupcheck ?? false, rands_bind, rands.length, rand_bits, pairing, pairing.length);
+
+  const res = binding.verifyMultipleAggregateSignatures(sets_bind, sets.length, msgLength, pksValidate ?? false, sigsGroupcheck ?? false, pairing, pairing.length);
   return res === 0;
 }
 
