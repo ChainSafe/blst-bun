@@ -1,9 +1,11 @@
 import {dlopen, ptr} from "bun:ffi";
+import { getBinaryName, getPrebuiltBinaryPath } from "../utils";
 
-const path = "lib/libblst_min_pk.dylib";
+const binaryName = getBinaryName();
+const binaryPath = getPrebuiltBinaryPath(binaryName);
 
 // Load the compiled Zig shared library
-const lib = dlopen(path, {
+const lib = dlopen(binaryPath, {
   // PublicKey functions
   validatePublicKey: {
     args: ["ptr"],

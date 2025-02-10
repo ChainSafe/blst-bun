@@ -72,5 +72,6 @@ describe("Signature", () => {
 });
 
 afterAll(() => {
-  closeBinding();
+  // TODO: enable this on all tests cause "segmentation fault" on CI
+  // closeBinding();
 });

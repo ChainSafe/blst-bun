@@ -1,0 +1,34 @@
+name: Main
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Check out the repository.
+      - uses: actions/checkout@v4
+
+      # Install Bun.
+      - name: Install Bun
+        run: |
+          curl -fsSL https://bun.sh/install | bash
+          export PATH="$HOME/.bun/bin:$PATH"
+          # Append Bun's bin folder to the GitHub Actions PATH.
+          echo "$HOME/.bun/bin" >> $GITHUB_PATH
+          bun --version
+
+      # (Optional) Install dependencies if you use bun install.
+      - name: Install Dependencies
+        run: bun install
+
+      # Run unit tests using "bun test:unit"
+      - name: Run Unit Tests
+        run: bun test:unit
