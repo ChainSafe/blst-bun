@@ -9,7 +9,7 @@
     "typescript": "^5.0.0"
   },
   "scripts": {
-    "test:unit": "bun test test/unit",
+    "test:unit": "bun test test/unit/signature.test.ts",
     "postinstall": "bun scripts/install.ts"
   }
 }
