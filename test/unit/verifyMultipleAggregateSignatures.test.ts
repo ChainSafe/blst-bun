@@ -35,5 +35,5 @@ describe("Verify Multiple Aggregate Signatures", () => {
 });
 
 afterAll(() => {
-  closeBinding();
+  // closeBinding();
 });

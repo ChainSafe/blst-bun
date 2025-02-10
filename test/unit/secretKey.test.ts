@@ -110,5 +110,5 @@ describe("SecretKey", () => {
 });
 
 afterAll(() => {
-  closeBinding();
+  // closeBinding();
 });

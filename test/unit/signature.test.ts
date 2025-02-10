@@ -72,5 +72,5 @@ describe("Signature", () => {
 });
 
 afterAll(() => {
-  closeBinding();
+  // closeBinding();
 });
