@@ -6,8 +6,7 @@ import {ReadableStream} from "stream/web";
 import {createWriteStream, existsSync, mkdirSync} from "fs";
 import {PREBUILD_DIR, getBinaryName, getPrebuiltBinaryPath} from "../utils";
 
-// TODO: modify this
-const VERSION = "0.0.1-rc.0";
+const VERSION = "0.1.0-rc.0";
 
 // CLI runner and entrance for this file when called by npm/yarn
 install().then(
