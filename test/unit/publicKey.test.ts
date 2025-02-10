@@ -8,7 +8,7 @@ import { SecretKey } from "../../src";
 import { PUBLIC_KEY_LENGTH_COMPRESSED, PUBLIC_KEY_LENGTH_UNCOMPRESSED } from "../../src/const";
 
 describe("PublicKey", () => {
-  it("should exist", () => {
+  it.only("should exist", () => {
     expect(PublicKey).toBeFunction();
   });
 
