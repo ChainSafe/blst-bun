@@ -8,7 +8,7 @@ import { SecretKey } from "../../src";
 import { PUBLIC_KEY_LENGTH_COMPRESSED, PUBLIC_KEY_LENGTH_UNCOMPRESSED } from "../../src/const";
 
 describe("PublicKey", () => {
-  it.only("should exist", () => {
+  it("should exist", () => {
     expect(PublicKey).toBeFunction();
   });
 
@@ -16,7 +16,7 @@ describe("PublicKey", () => {
     // no need "should have a private constructor"
 
     describe("deserialize", () => {
-      it("should only take 48 or 96 bytes", () => {
+      it.only("should only take 48 or 96 bytes", () => {
         expect(() => PublicKey.fromBytes(Buffer.alloc(32, "*"))).toThrow("Invalid encoding");
       });
 
