@@ -11,8 +11,9 @@ class NotBunError extends Error {
 }
 
 /**
- * Get binary name.
- * name: {platform}-{arch}-{v8 version}-blst_ts_addon.node
+ * Get shared library name according to blst-z release artifacts
+ * for example: https://github.com/ChainSafe/blst-z/releases/tag/v0.1.0-rc.0
+ * name: libblst_min_pk_{arch}-{platform}.{ext}
  */
 export function getBinaryName(): string {
   if (!process) throw new NotBunError("global object");
