@@ -1,5 +1,4 @@
 import {resolve} from "node:path";
-import {existsSync} from "node:fs";
 export const BINDINGS_NAME = "libblst_min_pk";
 
 export const ROOT_DIR = resolve(__dirname, "..");
@@ -24,6 +23,8 @@ export function getBinaryName(): string {
   const nodeApiVersion = process.versions.modules;
   if (!nodeApiVersion) throw new NotBunError("process.versions.modules");
 
+  // due to platform definition in blst, the shared library is defined with arch as x86_64 or aarch64
+  // see https://github.com/supranational/blst/blob/v0.3.13/build.sh#L91
   let archName: string;
   switch(arch) {
     case "x64":
@@ -36,6 +37,8 @@ export function getBinaryName(): string {
       throw new Error(`Unsupported architecture: ${arch}`);
   }
 
+  // as of blst-z 0.1.0, only macos and linux were supported
+  // https://github.com/ChainSafe/blst-z/blob/99e878224febc3fd835bd6762fc547466172560d/.github/workflows/release.yml#L13
   let platformName: string;
   // shared library extension
   let ext: string;
