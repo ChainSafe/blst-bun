@@ -1,0 +1,64 @@
+import {resolve} from "node:path";
+import {existsSync} from "node:fs";
+export const BINDINGS_NAME = "libblst_min_pk";
+
+export const ROOT_DIR = resolve(__dirname, "..");
+export const PREBUILD_DIR = resolve(ROOT_DIR, "prebuild");
+
+class NotBunError extends Error {
+  constructor(missingItem: string) {
+    super(`blst-bun bindings only run in a Bun context. No ${missingItem} found.`);
+  }
+}
+
+/**
+ * Get binary name.
+ * name: {platform}-{arch}-{v8 version}-blst_ts_addon.node
+ */
+export function getBinaryName(): string {
+  if (!process) throw new NotBunError("global object");
+  let platform = process.platform;
+  if (!platform) throw new NotBunError("process.platform");
+  const arch = process.arch;
+  if (!arch) throw new NotBunError("process.arch");
+  const nodeApiVersion = process.versions.modules;
+  if (!nodeApiVersion) throw new NotBunError("process.versions.modules");
+
+  let archName: string;
+  switch(arch) {
+    case "x64":
+      archName = "x86_64";
+      break;
+    case "arm64":
+      archName = "aarch64";
+      break;
+    default:
+      throw new Error(`Unsupported architecture: ${arch}`);
+  }
+
+  let platformName: string;
+  // shared library extension
+  let ext: string;
+  switch (platform) {
+    case "darwin":
+      platformName = "macos";
+      ext = "dylib";
+      break;
+    case "linux":
+      platformName = "linux";
+      ext = "so";
+      break;
+    case "win32":
+      platformName = "windows";
+      ext = "dll";
+      break;
+    default:
+      throw new Error(`Unsupported platform: ${platform}`);
+  }
+
+  return `${BINDINGS_NAME}_${archName}-${platformName}.${ext}`;
+}
+
+export function getPrebuiltBinaryPath(binaryName: string): string {
+  return resolve(PREBUILD_DIR, binaryName);
+}
