@@ -1,10 +1,8 @@
 import {dlopen, ptr} from "bun:ffi";
 import { getBinaryName, getPrebuiltBinaryPath } from "../utils";
 
-// const binaryName = getBinaryName();
-// const binaryPath = getPrebuiltBinaryPath(binaryName);
-
-const binaryPath = "/Users/tuyennguyen/Projects/workshop/blst-z/zig-out/lib/libblst_min_pk.dylib";
+const binaryName = getBinaryName();
+const binaryPath = getPrebuiltBinaryPath(binaryName);
 
 // Load the compiled Zig shared library
 const lib = dlopen(binaryPath, {
