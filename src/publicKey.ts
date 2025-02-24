@@ -3,9 +3,18 @@ import { BLST_SUCCESS, PUBLIC_KEY_LENGTH_COMPRESSED, PUBLIC_KEY_LENGTH_UNCOMPRES
 import { fromHex, toError, toHex } from "./util.ts";
 
 export class PublicKey {
-  private blst_point: Uint8Array;
+  // this is mapped directly to `*const PublicKeyType` in Zig
+  blst_point: Uint8Array;
   private constructor(buffer: Uint8Array) {
     this.blst_point = buffer;
+  }
+
+  /**
+   * Supposed to be used to mutate the public key after this call
+   */
+  public static defaultPublicKey(): PublicKey {
+    const buffer = new Uint8Array(PUBLIC_KEY_LENGTH_UNCOMPRESSED);
+    return new PublicKey(buffer);
   }
 
   /**
@@ -81,4 +90,23 @@ export class PublicKey {
   public writeReference(out: Uint32Array, offset: number): void {
     writeReference(this.blst_point, out, offset);
   }
+}
+
+const MAX_PKS = 128;
+// global public key references to be reused across multiple calls
+const public_keys_refs = new Uint32Array(MAX_PKS * 2);
+
+/**
+ * Map PublicKey[] in typescript to [*c]const *PublicKeyType in Zig.
+ */
+export function writePublicKeysReference(pks: PublicKey[]): Uint32Array {
+  if (pks.length > MAX_PKS) {
+    throw new Error(`Too many public keys, max is ${MAX_PKS}`);
+  }
+
+  for (let i = 0; i < pks.length; i++) {
+    pks[i].writeReference(public_keys_refs, i * 2);
+  }
+
+  return public_keys_refs.subarray(0, pks.length * 2);
 }
