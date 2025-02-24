@@ -1,12 +1,20 @@
 import { binding, writeReference } from "./binding";
-import { BLST_SUCCESS, MAX_SIGNATURE_SETS_PER_JOB, SIGNATURE_LENGTH_COMPRESSED, SIGNATURE_LENGTH_UNCOMPRESSED } from "./const";
-import type { PublicKey } from "./publicKey";
+import { BLST_SUCCESS, SIGNATURE_LENGTH_COMPRESSED, SIGNATURE_LENGTH_UNCOMPRESSED } from "./const";
 import { blstErrorToReason, fromHex, toHex } from "./util";
 
 export class Signature {
-  private blst_point: Uint8Array;
+  // this is mapped directly to `*const SignatureType` in Zig
+  blst_point: Uint8Array;
   private constructor(buffer: Uint8Array) {
     this.blst_point = buffer;
+  }
+
+  /**
+   * Supposed to be used to mutate the signature after this call
+   */
+  public static defaultSignature(): Signature {
+    const buffer = new Uint8Array(SIGNATURE_LENGTH_UNCOMPRESSED);
+    return new Signature(buffer);
   }
 
   /**
@@ -93,52 +101,21 @@ export class Signature {
 
 }
 
-export interface SignatureSet {
-  msg: Uint8Array;
-  pk: PublicKey;
-  sig: Signature;
-};
-
-// global pairing buffer to be reused across multiple calls
-const pairing = new Uint8Array(binding.sizeOfPairing());
-// global signature set data to be reused across multiple calls
-// each 6 items are 24 bytes, store 3 references of each signature set (msg + pk + sig)
-const signature_sets_data = new Uint32Array(MAX_SIGNATURE_SETS_PER_JOB * 6);
-// global signature sets reference to be reused across multiple calls
-// each 2 tems are 8 bytes, store the reference of each signature set
-const signature_sets_ref = new Uint32Array(MAX_SIGNATURE_SETS_PER_JOB * 2);
+const MAX_PKS = 128;
+// global public key references to be reused across multiple calls
+const signatures_refs = new Uint32Array(MAX_PKS * 2);
 
 /**
- * Verify multiple aggregated signatures against multiple messages and multiple public keys.
- *
- * If `pks_validate` is `true`, the public keys will be infinity and group checked.
- *
- * If `sigs_groupcheck` is `true`, the signatures will be group checked.
- *
- * See https://ethresear.ch/t/fast-verification-of-multiple-bls-signatures/5407
+ * Map Signature[] in typescript to [*c]const *SignatureType in Zig.
  */
-export function verifyMultipleAggregateSignatures(sets: SignatureSet[], pksValidate?: boolean | undefined | null, sigsGroupcheck?: boolean | undefined | null): boolean {
-  if (sets.length > MAX_SIGNATURE_SETS_PER_JOB) {
-    throw new Error(`Number of signature sets exceeds the maximum of ${MAX_SIGNATURE_SETS_PER_JOB}`);
+export function writeSignaturesReference(sigs: Signature[]): Uint32Array {
+  if (sigs.length > MAX_PKS) {
+    throw new Error(`Too many signatures, max is ${MAX_PKS}`);
   }
 
-  writeSignatureSetsReference(sets, signature_sets_ref.subarray(0, sets.length * 2));
-  const msgLength = 32;
-  const res = binding.verifyMultipleAggregateSignatures(signature_sets_ref, sets.length, msgLength, pksValidate ?? false, sigsGroupcheck ?? false, pairing, pairing.length);
-  return res === 0;
-}
-
-function writeSignatureSetsReference(sets: SignatureSet[], out: Uint32Array): void {
-  let offset = 0;
-  for (const [i, set] of sets.entries()) {
-    writeSignatureSetReference(set, signature_sets_data, offset + i * 6);
-    // write pointer
-    writeReference(signature_sets_data.subarray(i * 6, i * 6 + 6), out, i * 2);
+  for (let i = 0; i < sigs.length; i++) {
+    sigs[i].writeReference(signatures_refs, i * 2);
   }
-}
 
-function writeSignatureSetReference(set: SignatureSet, out: Uint32Array, offset: number): void {
-  writeReference(set.msg, out, offset);
-  set.pk.writeReference(out, offset + 2);
-  set.sig.writeReference(out, offset + 4);
+  return signatures_refs.subarray(0, sigs.length * 2);
 }
