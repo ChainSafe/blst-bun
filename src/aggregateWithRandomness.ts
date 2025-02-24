@@ -53,6 +53,12 @@ export function aggregateWithRandomness(sets: Array<PkAndSerializedSig>): PkAndS
  * Aggregate multiple public keys and multiple serialized signatures into a single blinded public key and blinded signature.
  *
  * Signatures are deserialized and validated with infinity and group checks before aggregation.
+ * TODO: this api only works with MacOS not Linux
+ * got this error on Linux:
+ * ```
+ *  thread 1893 panic: reached unreachable code
+ *  Panicked during a panic. Aborting.
+ * ```
  */
 export function asyncAggregateWithRandomness(sets: Array<PkAndSerializedSig>): Promise<PkAndSig> {
   if (sets.length > MAX_AGGREGATE_WITH_RANDOMNESS_PER_JOB) {
