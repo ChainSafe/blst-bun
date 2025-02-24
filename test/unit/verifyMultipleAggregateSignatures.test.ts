@@ -1,5 +1,5 @@
 import { describe, it, expect, afterAll } from "bun:test";
-import {verifyMultipleAggregateSignatures} from "../../src/index";
+import {verifyMultipleAggregateSignatures} from "../../src/verifyMultipleAggregateSignatures";
 import {getTestSet, getTestSets} from "../utils";
 import { closeBinding } from "../../src/binding";
 
@@ -17,7 +17,8 @@ describe("Verify Multiple Aggregate Signatures", () => {
     it("should return false for invalid sets", () => {
       const sets = getTestSets(6);
       const randomSet = getTestSet(20);
-      sets[0].sig = randomSet.sig;
+      // do not modify sets[0].sig directly, it will affect other tests
+      sets[0] = {...sets[0], sig: randomSet.sig};
       expect(verifyMultipleAggregateSignatures(sets)).toBeFalse();
     });
 
