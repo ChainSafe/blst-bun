@@ -3,13 +3,17 @@
   "module": "src/index.ts",
   "type": "module",
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/js-yaml": "^4.0.9",
+    "tar": "^7.4.0",
+    "js-yaml": "^4.1.0"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
   "scripts": {
     "test:unit": "bun test test/unit",
-    "postinstall": "bun scripts/install.ts"
+    "postinstall": "bun scripts/install.ts",
+    "download-spec-tests": "bun test/spec/downloadTests.ts"
   }
 }
