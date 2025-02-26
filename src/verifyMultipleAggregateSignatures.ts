@@ -30,6 +30,11 @@ export function verifyMultipleAggregateSignatures(sets: SignatureSet[], pksValid
 
   writeSignatureSetsReference(sets, signature_sets_ref.subarray(0, sets.length * 2));
   const msgLength = 32;
+  for (const set of sets) {
+    if (set.msg.length !== msgLength) {
+      throw new Error("All messages must be 32 bytes");
+    }
+  }
   const res = binding.verifyMultipleAggregateSignatures(signature_sets_ref, sets.length, msgLength, pksValidate ?? false, sigsGroupcheck ?? false, pairing, pairing.length);
   return res === 0;
 }
