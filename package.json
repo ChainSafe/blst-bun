@@ -1,20 +1,23 @@
 {
-  "name": "blst-bun",
-  "module": "src/index.ts",
-  "type": "module",
-  "devDependencies": {
-    "@types/bun": "latest",
-    "@types/js-yaml": "^4.0.9",
-    "tar": "^7.4.0",
-    "js-yaml": "^4.1.0"
-  },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
-  },
-  "scripts": {
-    "test:unit": "bun test test/unit",
-    "test:spec": "bun test test/spec/*.test.ts",
-    "postinstall": "bun scripts/install.ts",
-    "download-spec-tests": "bun test/spec/downloadTests.ts"
-  }
+	"name": "blst-bun",
+	"module": "src/index.ts",
+	"type": "module",
+	"devDependencies": {
+		"@types/bun": "latest",
+		"@types/js-yaml": "^4.0.9",
+		"@biomejs/biome": "^1.9.3",
+		"tar": "^7.4.0",
+		"js-yaml": "^4.1.0"
+	},
+	"peerDependencies": {
+		"typescript": "^5.0.0"
+	},
+	"scripts": {
+		"test:unit": "bun test test/unit",
+		"test:spec": "bun test test/spec/*.test.ts",
+		"lint": "biome check",
+		"lint:fix": "yarn lint --write",
+		"postinstall": "bun scripts/install.ts",
+		"download-spec-tests": "bun test/spec/downloadTests.ts"
+	}
 }

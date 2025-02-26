@@ -2,16 +2,16 @@ import fs from "node:fs";
 import path from "node:path";
 import stream from "node:stream";
 import type {ReadableStream} from "node:stream/web";
-import * as tar from "tar";
 import jsYaml from "js-yaml";
+import * as tar from "tar";
 
 const REPO_ROOT = path.resolve(__dirname, "..", "..");
 export const SPEC_TEST_REPO_URL = "https://github.com/ethereum/consensus-spec-tests";
 
 export const G2_POINT_AT_INFINITY =
-  "0xc00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+	"0xc00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
 export const G1_POINT_AT_INFINITY =
-  "0xc00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+	"0xc00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
 
 // Examples of parsed YAML
 // {
@@ -33,101 +33,101 @@ export const G1_POINT_AT_INFINITY =
 //   output: false
 // }
 export interface TestCaseData {
-  input: unknown;
-  output: unknown;
+	input: unknown;
+	output: unknown;
 }
 
 export interface TestCase {
-  testCaseName: string;
-  testCaseData: TestCaseData;
+	testCaseName: string;
+	testCaseData: TestCaseData;
 }
 
 export interface TestGroup {
-  functionName: string;
-  directory: string;
-  testCases: TestCase[];
+	functionName: string;
+	directory: string;
+	testCases: TestCase[];
 }
 
 export interface TestBatchMeta {
-  directory: string;
-  innerBlsFolder?: boolean;
-  namedYamlFiles?: boolean;
+	directory: string;
+	innerBlsFolder?: boolean;
+	namedYamlFiles?: boolean;
 }
 
 export interface TestBatch {
-  directory: string;
-  testGroups: TestGroup[];
+	directory: string;
+	testGroups: TestGroup[];
 }
 
 function getTestCasesWithDataYaml(testDirectory: string): TestCase[] {
-  const testCases: TestCase[] = [];
-  for (const testCaseName of fs.readdirSync(testDirectory)) {
-    const testCaseDir = path.resolve(testDirectory, testCaseName);
-    const yamlPath = path.resolve(testCaseDir, "data.yaml");
-    if (!fs.existsSync(yamlPath)) {
-      throw new Error(`Missing yaml data for ${testCaseDir}`);
-    }
-    testCases.push({
-      testCaseName,
-      testCaseData: jsYaml.load(fs.readFileSync(yamlPath, "utf8")) as {
-        input: unknown;
-        output: unknown;
-      },
-    });
-  }
-  return testCases;
+	const testCases: TestCase[] = [];
+	for (const testCaseName of fs.readdirSync(testDirectory)) {
+		const testCaseDir = path.resolve(testDirectory, testCaseName);
+		const yamlPath = path.resolve(testCaseDir, "data.yaml");
+		if (!fs.existsSync(yamlPath)) {
+			throw new Error(`Missing yaml data for ${testCaseDir}`);
+		}
+		testCases.push({
+			testCaseName,
+			testCaseData: jsYaml.load(fs.readFileSync(yamlPath, "utf8")) as {
+				input: unknown;
+				output: unknown;
+			},
+		});
+	}
+	return testCases;
 }
 
 function getTestCasesWithNamedYaml(testDirectory: string): TestCase[] {
-  const testCases: TestCase[] = [];
-  for (const testCaseYaml of fs.readdirSync(testDirectory)) {
-    const [testCaseName] = testCaseYaml.split(".");
-    const yamlPath = path.resolve(testDirectory, testCaseYaml);
-    if (!fs.existsSync(yamlPath)) {
-      throw new Error(`Missing yaml data for ${testCaseName}`);
-    }
-    testCases.push({
-      testCaseName,
-      testCaseData: jsYaml.load(fs.readFileSync(yamlPath, "utf8")) as {
-        input: unknown;
-        output: unknown;
-      },
-    });
-  }
-  return testCases;
+	const testCases: TestCase[] = [];
+	for (const testCaseYaml of fs.readdirSync(testDirectory)) {
+		const [testCaseName] = testCaseYaml.split(".");
+		const yamlPath = path.resolve(testDirectory, testCaseYaml);
+		if (!fs.existsSync(yamlPath)) {
+			throw new Error(`Missing yaml data for ${testCaseName}`);
+		}
+		testCases.push({
+			testCaseName,
+			testCaseData: jsYaml.load(fs.readFileSync(yamlPath, "utf8")) as {
+				input: unknown;
+				output: unknown;
+			},
+		});
+	}
+	return testCases;
 }
 
 export function getTestBatch({directory, innerBlsFolder, namedYamlFiles}: TestBatchMeta): TestBatch {
-  const testBatch: TestBatch = {directory, testGroups: []};
+	const testBatch: TestBatch = {directory, testGroups: []};
 
-  const fullDirPath = path.resolve(REPO_ROOT, directory);
-  for (const functionName of fs.readdirSync(fullDirPath)) {
-    const pathSegments = [fullDirPath, functionName];
-    if (innerBlsFolder) pathSegments.push("bls");
-    const testDirectory = path.resolve(...pathSegments);
-    if (!fs.statSync(testDirectory).isDirectory()) {
-      continue;
-    }
-    const testGroup: TestGroup = {
-      functionName,
-      directory,
-      testCases: namedYamlFiles ? getTestCasesWithNamedYaml(testDirectory) : getTestCasesWithDataYaml(testDirectory),
-    };
-    testBatch.testGroups.push(testGroup);
-  }
+	const fullDirPath = path.resolve(REPO_ROOT, directory);
+	for (const functionName of fs.readdirSync(fullDirPath)) {
+		const pathSegments = [fullDirPath, functionName];
+		if (innerBlsFolder) pathSegments.push("bls");
+		const testDirectory = path.resolve(...pathSegments);
+		if (!fs.statSync(testDirectory).isDirectory()) {
+			continue;
+		}
+		const testGroup: TestGroup = {
+			functionName,
+			directory,
+			testCases: namedYamlFiles ? getTestCasesWithNamedYaml(testDirectory) : getTestCasesWithDataYaml(testDirectory),
+		};
+		testBatch.testGroups.push(testGroup);
+	}
 
-  return testBatch;
+	return testBatch;
 }
 
 const logEmpty = (): void => {};
 
 export type DownloadTestsOptions = {
-  specVersion: string;
-  outputDir: string;
-  /** Root Github URL `https://github.com/ethereum/consensus-spec-tests` */
-  specTestsRepoUrl: string;
-  /** Release files names to download without prefix `["general", "mainnet", "minimal"]` */
-  testsToDownload: string[];
+	specVersion: string;
+	outputDir: string;
+	/** Root Github URL `https://github.com/ethereum/consensus-spec-tests` */
+	specTestsRepoUrl: string;
+	/** Release files names to download without prefix `["general", "mainnet", "minimal"]` */
+	testsToDownload: string[];
 };
 
 /**
@@ -135,53 +135,54 @@ export type DownloadTestsOptions = {
  * Used by spec tests and SlashingProtectionInterchangeTest
  */
 export async function downloadTests(
-  {specVersion, specTestsRepoUrl, outputDir, testsToDownload}: DownloadTestsOptions,
-  log: (msg: string) => void = logEmpty
+	{specVersion, specTestsRepoUrl, outputDir, testsToDownload}: DownloadTestsOptions,
+	log: (msg: string) => void = logEmpty
 ): Promise<void> {
-  log(`outputDir = ${outputDir}`);
+	log(`outputDir = ${outputDir}`);
 
-  // Use version.txt as a flag to prevent re-downloading the tests
-  const versionFile = path.join(outputDir, "version.txt");
-  const existingVersion = fs.existsSync(versionFile) && fs.readFileSync(versionFile, "utf8").trim();
+	// Use version.txt as a flag to prevent re-downloading the tests
+	const versionFile = path.join(outputDir, "version.txt");
+	const existingVersion = fs.existsSync(versionFile) && fs.readFileSync(versionFile, "utf8").trim();
 
-  if (existingVersion === specVersion) {
-    return log(`version ${specVersion} already downloaded`);
-  } else {
-    log(`Downloading new version ${specVersion}`);
-  }
+	if (existingVersion === specVersion) {
+		return log(`version ${specVersion} already downloaded`);
+	}
 
-  if (fs.existsSync(outputDir)) {
-    log(`Cleaning existing version ${existingVersion} at ${outputDir}`);
-    fs.rmSync(outputDir, {recursive: true, force: true});
-  }
+	log(`Downloading new version ${specVersion}`);
 
-  fs.mkdirSync(outputDir, {recursive: true});
+	if (fs.existsSync(outputDir)) {
+		log(`Cleaning existing version ${existingVersion} at ${outputDir}`);
+		fs.rmSync(outputDir, {recursive: true, force: true});
+	}
 
-  await Promise.all(
-    testsToDownload.map(async (test) => {
-      const url = `${specTestsRepoUrl ?? SPEC_TEST_REPO_URL}/releases/download/${specVersion}/${test}.tar.gz`;
-      const fileName = url.split("/").pop();
-      const filePath = path.resolve(outputDir, String(fileName));
-      const {body, ok, headers} = await fetch(url);
-      if (!ok || !body) {
-        throw new Error(`Failed to download ${url}`);
-      }
+	fs.mkdirSync(outputDir, {recursive: true});
 
-      const totalSize = headers.get("content-length");
-      log(`Downloading ${url} - ${totalSize} bytes`);
+	await Promise.all(
+		testsToDownload.map(async (test) => {
+			const url = `${specTestsRepoUrl ?? SPEC_TEST_REPO_URL}/releases/download/${specVersion}/${test}.tar.gz`;
+			const fileName = url.split("/").pop();
+			const filePath = path.resolve(outputDir, String(fileName));
+			// biome-ignore lint/style/noRestrictedGlobals: allow "fetch" here
+			const {body, ok, headers} = await fetch(url);
+			if (!ok || !body) {
+				throw new Error(`Failed to download ${url}`);
+			}
 
-      await stream.promises.finished(
-        stream.Readable.fromWeb(body as ReadableStream<Uint8Array>).pipe(fs.createWriteStream(filePath))
-      );
+			const totalSize = headers.get("content-length");
+			log(`Downloading ${url} - ${totalSize} bytes`);
 
-      log(`Downloaded  ${url}`);
+			await stream.promises.finished(
+				stream.Readable.fromWeb(body as ReadableStream<Uint8Array>).pipe(fs.createWriteStream(filePath))
+			);
 
-      await tar.x({
-        file: filePath,
-        cwd: outputDir,
-      });
-    })
-  );
+			log(`Downloaded  ${url}`);
 
-  fs.writeFileSync(versionFile, specVersion);
+			await tar.x({
+				file: filePath,
+				cwd: outputDir,
+			});
+		})
+	);
+
+	fs.writeFileSync(versionFile, specVersion);
 }
