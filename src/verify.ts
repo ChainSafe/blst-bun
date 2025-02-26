@@ -26,7 +26,8 @@ export function verify(msg: Uint8Array, pk: PublicKey, sig: Signature, pkValidat
  */
 export function aggregateVerify(msgs: Array<Uint8Array>, pks: Array<PublicKey>, sig: Signature, pkValidate?: boolean | undefined | null, sigsGroupcheck?: boolean | undefined | null): boolean {
   if (msgs.length < 1) {
-    throw new Error("At least one message is required");
+    // this is the same to the original napi-rs blst-ts
+    return false;
   }
   if (msgs.length !== pks.length) {
     throw new Error("Number of messages must be equal to the number of public keys");
