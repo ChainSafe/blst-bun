@@ -1,8 +1,8 @@
 import { binding } from "./binding";
-import { BLST_SUCCESS, PUBLIC_KEY_LENGTH_UNCOMPRESSED, SECRET_KEY_LENGTH } from "./const";
+import { BLST_SUCCESS, SECRET_KEY_LENGTH } from "./const";
 import { PublicKey } from "./publicKey";
 import { Signature } from "./signature";
-import { blstErrorToReason, fromHex, toError, toHex } from "./util";
+import { fromHex, toError, toHex } from "./util";
 
 export class SecretKey {
   private blst_point: Uint8Array;

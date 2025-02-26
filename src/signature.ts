@@ -1,6 +1,6 @@
 import { binding, writeReference } from "./binding";
 import { BLST_SUCCESS, SIGNATURE_LENGTH_COMPRESSED, SIGNATURE_LENGTH_UNCOMPRESSED } from "./const";
-import { blstErrorToReason, fromHex, toHex } from "./util";
+import { fromHex, toError, toHex } from "./util";
 
 export class Signature {
   // this is mapped directly to `*const SignatureType` in Zig
@@ -43,7 +43,7 @@ export class Signature {
     }
 
     if (res !== BLST_SUCCESS) {
-      throw new Error(blstErrorToReason(res));
+      throw toError(res);
     }
 
     return new Signature(buffer);
@@ -90,7 +90,7 @@ export class Signature {
   public sigValidate(sigInfcheck?: boolean | undefined | null): void {
     const res = binding.validateSignature(this.blst_point, sigInfcheck ?? true);
     if (res !== BLST_SUCCESS) {
-      throw new Error(blstErrorToReason(res));
+      throw toError(res);
     }
   }
 

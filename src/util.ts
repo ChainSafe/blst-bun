@@ -21,11 +21,12 @@ export function fromHex(hex: string): Uint8Array {
 export function toError(blstErrorCode: number): Error {
   const message = blstErrorToReason(blstErrorCode);
   const error = new Error(message);
+  // this make it compliant to napi-rs binding
   (error as unknown as {code: string}).code = blstErrorToCode(blstErrorCode);
   return error;
 }
 
-export function blstErrorToReason(blstErrorCode: number): string {
+function blstErrorToReason(blstErrorCode: number): string {
   switch (blstErrorCode) {
     case 0:
       return "BLST_SUCCESS";
