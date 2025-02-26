@@ -30,5 +30,9 @@ jobs:
         run: bun install
 
       # Run unit tests using "bun test:unit"
-      - name: Run Unit Tests
+      - name: Unit Tests
         run: bun test:unit
+      - name: Download spec tests
+        run: bun download-spec-tests
+      - name: Spec tests
+        run: bun test:spec
