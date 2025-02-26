@@ -13,6 +13,7 @@
   },
   "scripts": {
     "test:unit": "bun test test/unit",
+    "test:spec": "bun test test/spec/*.test.ts",
     "postinstall": "bun scripts/install.ts",
     "download-spec-tests": "bun test/spec/downloadTests.ts"
   }
