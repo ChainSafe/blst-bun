@@ -3,7 +3,8 @@ name: Main
 on:
   push:
     branches:
-      - ["main", "te/ci_more_platforms"]
+      - main
+      - te/ci_more_platforms
   pull_request:
     branches:
       - main
