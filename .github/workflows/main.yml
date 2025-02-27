@@ -10,14 +10,31 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        settings:
+          - os: ubuntu-latest
+            arch: x86_64
+          - os: ubuntu-24.04-arm
+            arch: aarch64
+          - os: macos-13
+            arch: x86_64
+          - os: macos-latest
+            arch: aarch64
+
+    runs-on: ${{ matrix.settings.os }}
 
     steps:
       # Check out the repository.
       - uses: actions/checkout@v4
+      - name: Print OS ${{ matrix.settings.os }}
+        run: uname -a
+      - name: Print Architecture ${{ matrix.settings.arch }}
+        run: uname -m
 
       # Install Bun.
-      - name: Install Bun
+      - name: Install Bun on ${{ matrix.settings.os }} and ${{ matrix.settings.arch }}
         run: |
           curl -fsSL https://bun.sh/install | bash
           export PATH="$HOME/.bun/bin:$PATH"
