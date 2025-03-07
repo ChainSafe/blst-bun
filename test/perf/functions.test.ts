@@ -29,8 +29,8 @@ describe("functions", () => {
 	});
 	describe("aggregateWithRandomness", () => {
 		// for (const count of [1, 16, 128, 256, 512, 1024]) {
-    // TODO: blst-bun supports up to 128 sets while blst-ts supports unlimited sets
-    // as of Feb 2025, this is enough for lodestar
+		// TODO: blst-bun supports up to 128 sets while blst-ts supports unlimited sets
+		// as of Feb 2025, this is enough for lodestar
 		for (const count of [1, 16, 128]) {
 			bench({
 				id: `aggregateWithRandomness - ${count} sets`,
@@ -50,8 +50,8 @@ describe("functions", () => {
 	});
 	describe("aggregateVerify", () => {
 		// for (const count of [1, 8, 32, 128, 256]) {
-    // TODO: blst-bun supports up to 128 sets while blst-ts supports unlimited sets
-    // however lodestar is not using this api
+		// TODO: blst-bun supports up to 128 sets while blst-ts supports unlimited sets
+		// however lodestar is not using this api
 		for (const count of [1, 8, 32, 128]) {
 			bench({
 				id: `aggregateVerify - ${count} sets`,
@@ -84,8 +84,8 @@ describe("functions", () => {
 	});
 	describe("verifyMultipleAggregateSignatures", () => {
 		// for (const count of [1, 8, 32, 128, 256]) {
-    // TODO: blst-bun supports up to 128 sets while blst-ts supports unlimited sets
-    // however this is enough for lodestar
+		// TODO: blst-bun supports up to 128 sets while blst-ts supports unlimited sets
+		// however this is enough for lodestar
 		for (const count of [1, 8, 32, 128]) {
 			bench({
 				id: `verifyMultipleAggregateSignatures - ${count} sets`,
