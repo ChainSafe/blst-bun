@@ -60,3 +60,6 @@ jobs:
 
       - name: Benchmark
         run: bun benchmark
+        env:
+          # To write to PRs and commits
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
