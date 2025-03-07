@@ -28,7 +28,10 @@ describe("functions", () => {
 		}
 	});
 	describe("aggregateWithRandomness", () => {
-		for (const count of [1, 16, 128, 256, 512, 1024]) {
+		// for (const count of [1, 16, 128, 256, 512, 1024]) {
+    // TODO: blst-bun supports up to 128 sets while blst-ts supports unlimited sets
+    // as of Feb 2025, this is enough for lodestar
+		for (const count of [1, 16, 128]) {
 			bench({
 				id: `aggregateWithRandomness - ${count} sets`,
 				before: () => {
