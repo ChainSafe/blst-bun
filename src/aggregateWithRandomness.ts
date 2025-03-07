@@ -25,6 +25,7 @@ const scratchSig = new Uint8Array(binding.sizeOfScratchSig(MAX_AGGREGATE_WITH_RA
  * Aggregate multiple public keys and multiple serialized signatures into a single blinded public key and blinded signature.
  *
  * Signatures are deserialized and validated with infinity and group checks before aggregation.
+ * TODO: see if we can support unlimited sets
  */
 export function aggregateWithRandomness(sets: Array<PkAndSerializedSig>): PkAndSig {
 	if (sets.length > MAX_AGGREGATE_WITH_RANDOMNESS_PER_JOB) {

@@ -6,6 +6,7 @@
 		"@types/bun": "latest",
 		"@types/js-yaml": "^4.0.9",
 		"@biomejs/biome": "^1.9.3",
+    "@chainsafe/benchmark": "^1.2.3",
 		"tar": "^7.4.0",
 		"js-yaml": "^4.1.0"
 	},
@@ -17,6 +18,8 @@
 		"test:spec": "bun test test/spec/*.test.ts",
 		"lint": "biome check",
 		"lint:fix": "yarn lint --write",
+    "benchmark": "bun benchmark:files 'test/perf/**/*.test.ts'",
+    "benchmark:files": "bun ./node_modules/.bin/benchmark --config .benchrc.yaml --defaultBranch main",
 		"postinstall": "bun scripts/install.ts",
 		"download-spec-tests": "bun test/spec/downloadTests.ts"
 	}
