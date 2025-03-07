@@ -49,7 +49,10 @@ describe("functions", () => {
 		}
 	});
 	describe("aggregateVerify", () => {
-		for (const count of [1, 8, 32, 128, 256]) {
+		// for (const count of [1, 8, 32, 128, 256]) {
+    // TODO: blst-bun supports up to 128 sets while blst-ts supports unlimited sets
+    // however lodestar is not using this api
+		for (const count of [1, 8, 32, 128]) {
 			bench({
 				id: `aggregateVerify - ${count} sets`,
 				beforeEach: () => {
@@ -80,7 +83,10 @@ describe("functions", () => {
 		}
 	});
 	describe("verifyMultipleAggregateSignatures", () => {
-		for (const count of [1, 8, 32, 128, 256]) {
+		// for (const count of [1, 8, 32, 128, 256]) {
+    // TODO: blst-bun supports up to 128 sets while blst-ts supports unlimited sets
+    // however this is enough for lodestar
+		for (const count of [1, 8, 32, 128]) {
 			bench({
 				id: `verifyMultipleAggregateSignatures - ${count} sets`,
 				beforeEach: () => arrayOfIndexes(0, count - 1).map((i) => getTestSet(i)),
