@@ -115,7 +115,7 @@ describe("Aggregate With Randomness", () => {
 	});
 
 	// this api only works on MacOS not Linux
-	describe.skip("asyncAggregateWithRandomness()", () => {
+	describe("asyncAggregateWithRandomness()", () => {
 		it("should not accept an empty array argument", async () => {
 			try {
 				await asyncAggregateWithRandomness([]);
