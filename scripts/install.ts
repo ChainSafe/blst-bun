@@ -6,7 +6,7 @@ import { finished } from "stream/promises";
 import type { ReadableStream } from "stream/web";
 import { PREBUILD_DIR, getBinaryName, getPrebuiltBinaryPath } from "../utils";
 
-const VERSION = "0.1.0-rc.6";
+const VERSION = "0.1.0-rc.5";
 
 // CLI runner and entrance for this file when called by npm/yarn
 install().then(
