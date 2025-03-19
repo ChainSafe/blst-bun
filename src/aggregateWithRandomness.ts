@@ -100,7 +100,7 @@ export function asyncAggregateWithRandomness(sets: Array<PkAndSerializedSig>): P
 			{
 				args: ["u32"],
 				returns: "void",
-        threadsafe: true,
+				threadsafe: true,
 			}
 		);
 
