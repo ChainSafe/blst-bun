@@ -106,7 +106,7 @@ const lib = dlopen(binaryPath, {
 		returns: "u8",
 	},
 	verifyMultipleAggregateSignatures: {
-		args: ["ptr", "u32", "u32", "bool", "bool", "ptr", "u32"],
+		args: ["ptr", "u32", "u32", "bool", "bool"],
 		returns: "u32",
 	},
 	sizeOfPairing: {
@@ -122,12 +122,11 @@ const lib = dlopen(binaryPath, {
 		returns: "u32",
 	},
 	aggregateWithRandomness: {
-		args: ["ptr", "u32", "ptr", "u32", "ptr", "u32", "ptr", "ptr"],
+		args: ["ptr", "u32", "ptr", "ptr"],
 		returns: "u32",
 	},
 	asyncAggregateWithRandomness: {
-		args: ["ptr", "u32", "ptr", "u32", "ptr", "u32", "ptr", "ptr", "callback"],
-		// TODO: may return void instead
+		args: ["ptr", "u32", "ptr", "ptr", "callback"],
 		returns: "u32",
 	},
 	aggregateSerializedPublicKeys: {
@@ -138,19 +137,30 @@ const lib = dlopen(binaryPath, {
 		args: ["ptr", "ptr", "u32", "u32", "bool"],
 		returns: "u32",
 	},
-	sizeOfScratchPk: {
-		args: ["u32"],
+	init: {
+		args: [],
 		returns: "u32",
 	},
-	sizeOfScratchSig: {
-		args: ["u32"],
-		returns: "u32",
+	deinit: {
+		args: [],
+		returns: "void",
 	},
 });
 
 export const binding = lib.symbols;
 
+/**
+ * Initialize the Zig binding
+ */
+const res = binding.init();
+if (res !== 0) {
+	throw new Error("Failed to initialize Zig binding");
+}
+
+// console.log("@@@@ Zig binding initialized");
+
 export function closeBinding(): void {
+	binding.deinit();
 	lib.close();
 }
 

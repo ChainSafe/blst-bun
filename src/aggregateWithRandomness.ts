@@ -18,9 +18,6 @@ export interface PkAndSig {
 // each 2 tems are 8 bytes, store the reference of each PkAndSerializedSig
 const pkAndSerializedSigsRefs = new Uint32Array(MAX_AGGREGATE_WITH_RANDOMNESS_PER_JOB * 2);
 
-const scratchPk = new Uint8Array(binding.sizeOfScratchPk(MAX_AGGREGATE_WITH_RANDOMNESS_PER_JOB));
-const scratchSig = new Uint8Array(binding.sizeOfScratchSig(MAX_AGGREGATE_WITH_RANDOMNESS_PER_JOB));
-
 /**
  * Aggregate multiple public keys and multiple serialized signatures into a single blinded public key and blinded signature.
  *
@@ -41,16 +38,7 @@ export function aggregateWithRandomness(sets: Array<PkAndSerializedSig>): PkAndS
 	const pkOut = PublicKey.defaultPublicKey();
 	const sigOut = Signature.defaultSignature();
 
-	const res = binding.aggregateWithRandomness(
-		refs,
-		sets.length,
-		scratchPk,
-		scratchPk.length,
-		scratchSig,
-		scratchSig.length,
-		pkOut.blst_point,
-		sigOut.blst_point
-	);
+	const res = binding.aggregateWithRandomness(refs, sets.length, pkOut.blst_point, sigOut.blst_point);
 
 	if (res !== 0) {
 		throw new Error("Failed to aggregate with randomness res = " + res);
@@ -79,23 +67,38 @@ export function asyncAggregateWithRandomness(sets: Array<PkAndSerializedSig>): P
 		throw new Error("At least one PkAndSerializedSig is required");
 	}
 
-	return new Promise((resolve, reject) => {
-		const pkOut = PublicKey.defaultPublicKey();
-		const sigOut = Signature.defaultSignature();
+	// 1s timeout
+	const TIMEOUT_MS = 1_000;
+	const pkOut = PublicKey.defaultPublicKey();
+	const sigOut = Signature.defaultSignature();
 
-		const jscallback = new JSCallback(
+	return new Promise((resolve, reject) => {
+		let jscallback: JSCallback | null = null;
+		const timeout = setTimeout(() => {
+			if (jscallback) {
+				jscallback.close();
+				jscallback = null;
+			}
+			reject(`Timeout after ${timeout}ms`);
+		}, TIMEOUT_MS);
+
+		// it's important to always close the callback
+		jscallback = new JSCallback(
 			(res: number): void => {
-				if (res === 0) {
-					// setTimeout to unblock zig callback thread, not sure why "res" can only be accessed once
-					setTimeout(() => {
-						resolve({pk: pkOut, sig: sigOut});
-					}, 0);
-				} else {
-					setTimeout(() => {
-						// setTimeout to unblock zig callback thread, not sure why "res" can only be accessed once
-						reject(new Error("Failed to aggregate with randomness"));
-					}, 0);
+				clearTimeout(timeout);
+				const _res = res;
+				if (jscallback) {
+					jscallback.close();
+					jscallback = null;
 				}
+				// setTimeout to unblock zig callback thread, not sure why "res" can only be accessed once
+				setTimeout(() => {
+					if (_res === 0) {
+						resolve({pk: pkOut, sig: sigOut});
+					} else {
+						reject(new Error("Failed to aggregate with randomness"));
+					}
+				}, 0);
 			},
 			{
 				args: ["u32"],
@@ -104,23 +107,26 @@ export function asyncAggregateWithRandomness(sets: Array<PkAndSerializedSig>): P
 			}
 		);
 
-		const refs = pkAndSerializedSigsRefs.subarray(0, sets.length * 2);
+		// cannot reuse pkAndSerializedSigsRefs() due to async nature
+		const refs = new Uint32Array(sets.length * 2);
 		writePkAndSerializedSigsReference(sets, refs);
 
 		const res = binding.asyncAggregateWithRandomness(
-			pkAndSerializedSigsRefs,
+			refs,
 			sets.length,
-			scratchPk,
-			scratchPk.length,
-			scratchSig,
-			scratchSig.length,
 			pkOut.blst_point,
 			sigOut.blst_point,
-			jscallback
+			// it's noted in bun:ffi doc that using JSCallback.prototype.ptr is faster than JSCallback object
+			jscallback.ptr
 		);
 
 		if (res !== 0) {
-			throw new Error("Failed to aggregate with randomness res = " + res);
+			clearTimeout(timeout);
+			if (jscallback) {
+				jscallback.close();
+				jscallback = null;
+			}
+			reject(`Failed to aggregate with randomness res = ${res}`);
 		}
 	});
 }
